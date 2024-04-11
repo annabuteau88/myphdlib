@@ -210,6 +210,19 @@ def filterPulsesFromPhotologicDevice(signal, minimumPulseWidthInSeconds=0.14, sa
 
         #
         break
+    
+    # Find intervals smaler than threshold then flatten them\
+    deltaState = np.diff(mutated)
+    edgeIndices = np.where(abs(deltaState) > 0.5)[0]
+    intervals = np.hstack([
+        edgeIndices[0: -1].reshape(-1, 1),
+        edgeIndices[1:   ].reshape(-1, 1)
+    ])
+    for firstEdgeIndex, secondEdgeIndex in intervals:
+        dt = secondEdgeIndex - firstEdgeIndex
+        if dt < threshold:
+            mutated[firstEdgeIndex + 1: secondEdgeIndex + 1] = 0
+            continue
 
     #
     deltaState = np.diff(mutated)
